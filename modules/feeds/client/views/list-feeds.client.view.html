@@ -1,0 +1,140 @@
+<section ng-controller="FeedsListController" ng-init="find()">
+  <div class="page-header">
+    <h1>Новости</h1>
+    <div class="alert alert-warning text-center" data-ng-if="vm.feeds.$resolved && !vm.feeds.length">
+      No Feeds yet, why don't you <a data-ui-sref="feeds.create">create one</a>?
+    </div>
+  </div>
+
+  <div class="col-sm-4">
+    <table class="table table-striped">
+      <tbody>
+        <tr ng-repeat="feed in feeds | orderBy:'name'" ng-init="modeEdit=false">
+          <td>
+            <a href="{{feed.url}}" target="_blank" ng-show="!modeEdit">{{feed.name}}</a>
+            <form name="feedForm" class="form-vertical" ng-submit="updateCannel(feed); modeEdit=!modeEdit" ng-show="modeEdit" novalidate>
+              <fieldset>
+                <div class="form-group" show-errors>
+                  <label for="nameChannel">Название</label>
+                  <input name="nameChannel" type="text" ng-model="feed.name" id="nameChannel" class="form-control" required>
+                    <div ng-messages="feedForm.nameChannel.$error" role="alert">
+                      <p class="help-block error-text" ng-message="required">Необходимо имя RSS канала.</p>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="content">Адрес</label>
+                    <input name="urlChannel" type="text" ng-model="feed.url" id="urlChannel" class="form-control"required>
+                      <div ng-messages="feedForm.urlChannel.$error" role="alert">
+                        <p class="help-block error-text" ng-message="required">Необходим адрес RSS канала.</p>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <input type="submit" value="Сохранить" class="btn btn-default">
+                        <input type="button" value="Отмена" ng-click="modeEdit=false" class="btn btn-default">
+                        </div>
+                        <div ng-show="error" class="text-danger">
+                          <strong ng-bind="error"></strong>
+                        </div>
+                      </fieldset>
+                    </form>
+                  </td>
+                  <td><button class="btn btn-xs btn-default" ng-click="show(feed)" ng-show="!modeEdit">
+                      <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                    </button>
+                  </td>
+                  <td><button class="btn btn-xs btn-default" ng-show="!modeEdit" ng-click="modeEdit=!modeEdit">
+                      <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </button>
+                  </td>
+                  <td><button class="btn btn-xs btn-default" ng-click="delCannel(feed)" ng-show="!modeEdit">
+                      <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot> 
+                <tr>
+                  <td>Всего каналов: {{feeds.length}}</td>
+                  <td>Всего <span ng-pluralize count="feeds.length" when="{'one': '1 канал', 'two': '2 канала', 'three': '3 канала', 'four': '4 канала', 'other': '{} каналов'}"></span></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    <form name="feedForm" class="form-inline" ng-submit="addCannel(feedForm.$valid)" novalidate>
+                      <fieldset>
+                        <div class="form-group">
+                          <label for="nameChannel">Название:</label>
+                          <input id="nameChannel" name="nameChannel" type="text" size="12" class="form-control" placeholder="Название RSS канала" ng-model="nameChannel" required>
+                            <div ng-messages="feedForm.nameChannel.$error" role="alert">
+                              <p class="help-block error-text" ng-message="required">Необходимо имя RSS канала.</p>
+                            </div>
+
+                          </div>
+                          <div ng-messages="feedForm.nameChannel.$error" role="alert">
+                            <p class="help-block error-text" ng-message="required">Необходимо имя RSS канала.</p>
+                          </div>
+                          <div class="form-group">
+                            <label for="urlChannel">Адрес:</label>
+                            <div class="input-group">
+                              <input id="urlChannel" name="urlChannel" type="text" size="30" class="form-control" placeholder="адрес RSS канала" ng-model="urlChannel" required>
+                                <span class="input-group-btn">
+                                  <button id="addChannel" type="submit" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                  </button>
+                                </span>  
+
+                                <div ng-messages="feedForm.urlChannel.$error" role="alert">
+                                  <p class="help-block error-text" ng-message="required">Необходим адрес RSS канала.</p>
+                                </div>
+
+                              </div><!-- /input-group -->
+
+                            </div>
+                          </fieldset>  
+                        </form>
+                      </td> 
+                      <td>
+                        <div ng-show="error" class="text-danger">
+                          <strong ng-bind="error"></strong>
+                        </div>
+                      </td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+
+                <div ng-show="chartObject">
+                  Статистика появления символов алфавита.
+                  <div google-chart chart="chartObject" style="{{cssStyle}}"></div>
+                </div>
+
+              </div>
+
+              <div class="col-sm-8">
+                <div class="panel panel-default" ng-show="entries">
+                  <div class="panel-body">
+                    <div><strong>RSS канал: </strong>{{feedName}}</div>
+                    <div><strong>Новостей: </strong>{{entries.length}}</div>
+                    <div><strong>Авторов: </strong>{{AuthorCount}}</div>
+                  </div>
+                </div>
+
+                <div class="panel panel-default" ng-repeat="item in entries" ng-init="showContent=false;">
+                  <div class="panel-body">
+                    <div><strong>{{feedName}} </strong>{{item.publishedDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</div>
+                    <button class="btn btn-xs btn-default" ng-click="ShowItem(item); showContent=!showContent">
+                      <span ng-hide="showContent" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                      <span ng-show="showContent" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+                    </button>
+                    <a href="{{item.link}}" target="_blank">{{item.title}}</a> 
+                  </div>
+
+                  <div class="panel-body" ng-show="showContent" ng-bind-html="ShowItemLocal(item)"></div>
+
+                </div>
+              </div>
+
+            </section>
+            
