@@ -123,7 +123,7 @@
 
                 <div class="panel panel-default" ng-repeat="item in entries" ng-init="showContent=false;">
                   <div class="panel-body">
-                    <div><strong>{{feedName}} </strong>{{item.publishedDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</div>
+                    <div><strong>{{feedName}} </strong> <span ng-bind="LocaleDate(item.publishedDate)"></span></div>
                     <button class="btn btn-xs btn-default" ng-click="ShowItem(item); showContent=!showContent">
                       <span ng-hide="showContent" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                       <span ng-show="showContent" class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>

@@ -144,5 +144,16 @@
     $scope.ShowItemLocal = function (item) {
       return $sce.trustAsHtml(item.content);
     };
+    
+    $scope.LocaleDate = function (publishedDate) {
+      //console.log(item);
+      var articleDate;
+      if (!publishedDate) {
+        articleDate = new Date();
+      } else {
+        articleDate = new Date(publishedDate);
+      }
+      return articleDate.toLocaleDateString() + " " + articleDate.toLocaleTimeString();
+    };
   }
 })();
